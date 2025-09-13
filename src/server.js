@@ -65,17 +65,18 @@ export const setupServer = () => {
     console.log(`Server is running on port ${PORT}`);
   });
 
-  app.use((err, req, res) => {
-    res.status(500).json({
-      message: 'Something went wrong',
-      error: err.message,
-    });
-  });
-
   app.use((req, res) => {
     res.status(404).json({
       status: 404,
       message: 'Not found',
+    });
+  });
+
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, req, res, next) => {
+    res.status(500).json({
+      message: 'Something went wrong',
+      error: err.message,
     });
   });
 };
