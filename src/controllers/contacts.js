@@ -23,6 +23,7 @@ export const getContactsController = async (req, res, next) => {
       sortBy,
       sortOrder,
       filter,
+      userId: req.user._id,
     });
 
     res.json({
@@ -38,8 +39,10 @@ export const getContactsController = async (req, res, next) => {
 // eslint-disable-next-line no-unused-vars
 export const getContactByIdController = async (req, res, next) => {
   const { contactId } = req.params;
+  const userId = req.user._id;
 
-  const contact = await getContactById(contactId);
+  const contact = await getContactById(contactId, userId);
+
   if (!contact) {
     throw new createHttpError.NotFound('Contact not found');
   }
@@ -52,7 +55,8 @@ export const getContactByIdController = async (req, res, next) => {
 };
 
 export const createContactController = async (req, res) => {
-  const contact = await createContact(req.body);
+  const userId = req.user._id;
+  const contact = await createContact(req.body, userId);
 
   res.status(201).json({
     status: 201,
@@ -63,7 +67,8 @@ export const createContactController = async (req, res) => {
 
 export const deleteContactController = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await deleteContact(contactId);
+  const userId = req.user._id;
+  const contact = await deleteContact({ contactId, userId });
 
   if (!contact) {
     throw new createHttpError.NotFound('Contact not found');
@@ -73,27 +78,30 @@ export const deleteContactController = async (req, res) => {
 
 export const upsertContactController = async (req, res) => {
   const { contactId } = req.params;
+  const userId = req.user._id;
 
-  const resultContact = await replaceContact(contactId, req.body, {
-    upsert: true,
-  });
+  const resultContact = await replaceContact(contactId, req.body, userId);
 
   if (!resultContact) {
-    throw new createHttpError.NotFound('Contact not found');
+    throw new createHttpError.NotFound('Contact not found or access denied');
   }
 
   const status = resultContact.isNew ? 201 : 200;
+  const message = resultContact.isNew
+    ? 'Successfully created a contact!'
+    : 'Successfully updated a contact!';
 
   res.status(status).json({
     status,
-    message: `Successfully upserted a contact!`,
+    message,
     data: resultContact.contact,
   });
 };
 
 export const patchContactsController = async (req, res) => {
   const { contactId } = req.params;
-  const resultContact = await updateContact(contactId, req.body);
+  const userId = req.user._id;
+  const resultContact = await updateContact(contactId, req.body, userId);
 
   if (!resultContact) {
     throw new createHttpError.NotFound('Contact not found');
