@@ -10,6 +10,9 @@ import createHttpError from 'http-errors';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
+import { getEnvVar } from '../utils/getEnvVar.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 
 export const getContactsController = async (req, res, next) => {
   try {
@@ -56,7 +59,23 @@ export const getContactByIdController = async (req, res, next) => {
 
 export const createContactController = async (req, res) => {
   const userId = req.user._id;
-  const contact = await createContact(req.body, userId);
+  const photo = req.file;
+
+  let photoUrl;
+
+  if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+    photoUrl = await saveFileToCloudinary(photo);
+  } else {
+    photoUrl = await saveFileToUploadDir(photo);
+  }
+
+  const contact = await createContact(
+    {
+      ...req.body,
+      photo: photoUrl,
+    },
+    userId,
+  );
 
   res.status(201).json({
     status: 201,
@@ -101,7 +120,22 @@ export const upsertContactController = async (req, res) => {
 export const patchContactsController = async (req, res) => {
   const { contactId } = req.params;
   const userId = req.user._id;
-  const resultContact = await updateContact(contactId, req.body, userId);
+  const photo = req.file;
+
+  let photoUrl;
+
+  if (photo) {
+    if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+
+  const resultContact = await updateContact(contactId, userId, {
+    ...req.body,
+    photo: photoUrl,
+  });
 
   if (!resultContact) {
     throw new createHttpError.NotFound('Contact not found');
@@ -113,3 +147,42 @@ export const patchContactsController = async (req, res) => {
     data: resultContact,
   });
 };
+
+// export const patchContactController = async (req, res) => {
+//   const { contactId } = req.params;
+//   const photo = req.file;
+
+//   let photoUrl;
+
+//   if (photo) {
+//     photoUrl = await saveFileToUploadDir(photo);
+//   }
+
+//   const result = await updateContact(contactId, {
+//     ...req.body,
+//     photo: photoUrl,
+//   });
+
+//   if (!result) {
+//     throw new createHttpError.NotFound(404, 'Contact not found');
+//   }
+
+//   res.json({
+//     status: 200,
+//     message: 'Successfully patched a contact!',
+//     data: result.contact,
+//   });
+// };
+
+/* в photo лежить обʼєкт файлу
+		{
+		  fieldname: 'photo',
+		  originalname: 'download.jpeg',
+		  encoding: '7bit',
+		  mimetype: 'image/jpeg',
+		  destination: '/Users/borysmeshkov/Projects/goit-study/students-app/temp',
+		  filename: '1710709919677_download.jpeg',
+		  path: '/Users/borysmeshkov/Projects/goit-study/students-app/temp/1710709919677_download.jpeg',
+		  size: 7
+	  }
+	*/
