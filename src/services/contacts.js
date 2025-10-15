@@ -61,29 +61,6 @@ export const deleteContact = async ({ contactId, userId }) => {
   return contact;
 };
 
-// export const replaceContact = async (contactId, payload, options = {}) => {
-//
-// const { userId } = options;
-
-//const filter = { _id: contactId, userId };
-
-//   const newResult = await ContactsCollection.findByIdAndUpdate(
-//    filter,
-//     { ...payload, userId },
-//     {
-//       new: true,
-//       upsert: true, //create a new document if there does not have any
-//       includeResultMetadata: true,
-//     },
-//   );
-//   if (!newResult || !newResult.value) return null;
-
-//   return {
-//     contact: newResult.value,
-//     isNew: Boolean(newResult?.lastErrorObject?.upserted),
-//   };
-// };
-
 export const replaceContact = async (contactId, payload, options = {}) => {
   const { userId } = options;
 
@@ -124,12 +101,10 @@ export const replaceContact = async (contactId, payload, options = {}) => {
   }
 };
 
-export const updateContact = async (contactId, payload, userId) => {
-  return ContactsCollection.findByIdAndUpdate(
+export const updateContact = async (contactId, userId, payload) => {
+  return ContactsCollection.findOneAndUpdate(
     { _id: contactId, userId },
     payload,
-    {
-      new: true,
-    },
+    { new: true },
   );
 };
