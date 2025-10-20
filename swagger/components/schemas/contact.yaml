@@ -2,40 +2,49 @@ type: object
 required:
   - _id
   - name
-  - age
-  - gender
-  - avgMark
-  - onDuty
+  - phoneNumber
+  - contactType
+  - userId
+  - createdAt
+  - updatedAt
 properties:
   _id:
-    description: "Contact's id"
+    description: "Contact's ID"
     type: string
     example: 65e4decdd286b30065d54af9
   name:
     description: "Contact's name"
     type: string
     example: 'John Doe'
-  age:
-    description: "Contact's age"
+  phoneNumber:
+    description: "Contact's phone number"
     type: number
-    example: 12
-  gender:
-    description: "Contact's age"
-    type: string
-    enum: ['male', 'female', 'other']
-  avgMark:
-    description: "Contact's average mark. Should be between 1 and 12"
-    type: number
-    example: 9.7
-  onDuty:
-    description: 'Whether is contact on duty'
+    example: 380200000099
+  isFavourite:
+    description: "Contact's favourite"
     type: boolean
-    example: false
-  parentId:
-    description: "Student's parent id"
+    default: false
+  email:
+    description: "Contact's email"
+    type: string
+    example: john@gmail.com
+  contactType:
+    description: "Contact's type of personal"
+    type: string
+    enum: ['work', 'home', 'personal']
+  userId:
+    description: "Contact's user ID who uses the page from their account"
     type: string
     example: 65e4decdd286b30065d54af9
   photo:
     description: "Link to contact's photo"
     type: string
-    example: https://res.cloudinary.com/uqwgdu/image/upload/image.png
+    example: 'https://res.cloudinary.com/dslpy1boh/image/upload/v1760446123/vhzwi7s8vwrcyjn9fg2s.png'
+  createdAt:
+    type: string
+    format: date-time
+    example: 2025-10-14T12:48:44.690+00:00
+  updatedAt:
+    type: string
+    format: date-time
+    example: 2025-10-14T12:48:44.690+00:00

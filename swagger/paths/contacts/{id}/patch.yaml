@@ -1,21 +1,24 @@
 tags:
   - Contacts
-summary: Create contact
-operationId: createContact
-description: 'Create a contact with payload'
+summary: Update contact
+operationId: updateContact
+description: 'Update an existing contact by ID (partial update)'
 security:
   - bearerAuth: []
+parameters:
+  - name: id
+    in: path
+    required: true
+    description: Contact ID
+    schema:
+      type: string
+      example: 65e4decdd286b30065d54af9
 requestBody:
+  required: true
   content:
     multipart/form-data:
       schema:
         type: object
-        required:
-          - name
-          - phoneNumber
-          - email
-          - isFavourite
-          - contactType
         properties:
           name:
             description: "Contact's name"
@@ -24,7 +27,7 @@ requestBody:
           phoneNumber:
             description: "Contact's phone number"
             type: number
-            example: 380200000099
+            example: '380200000099'
           email:
             description: "Contact's email"
             type: string
@@ -32,6 +35,7 @@ requestBody:
           isFavourite:
             description: "Contact's favourite"
             type: boolean
+            example: true
           contactType:
             description: "Contact's type of personal"
             type: string
@@ -41,8 +45,8 @@ requestBody:
             type: string
             format: binary
 responses:
-  '201':
-    description: Creates a contact
+  '200':
+    description: Successfully updated a contact
     content:
       application/json:
         schema:
@@ -54,11 +58,11 @@ responses:
           properties:
             status:
               type: integer
-              example: 201
+              example: 200
             message:
               type: string
-              example: Successfully created a contact!
+              example: Successfully updated contact
             data:
-              $ref: '../../components/schemas/contact.yaml'
+              $ref: ../../../components/schemas/contact.yaml
   '404':
-    $ref: '../../components/responses/404.yaml'
+    $ref: '../../../components/responses/404.yaml'
